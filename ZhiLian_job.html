@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>智联招聘地图显示</title>
+    <script type="text/javascript" src="./js/jquery.js"></script>
+    <!-- 引入 ECharts -->
+    <script src="./js/echarts.js"></script>
+    <!-- 引入百度地图扩展 -->
+    <script src="./js/bmap.js"></script>
+     <!--引入百度地图的jssdk，这里需要使用你在百度地图开发者平台申请的 ak-->
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=jPRAv0mZ52gDMHCUGrixx2DGnSv87u1Q
+"></script>
+</head>
+<body>
+    <button class="btn">click it</button>
+    <div id="main" style="width: 900px;height: 600px;"></div>
+
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        myChart = echarts.init(document.getElementById('main'));
+        var option={
+            tooltip:{
+                trigger:"item",
+
+            },
+            // 加载 bmap 组件
+            bmap: {
+                // 百度地图中心经纬度
+                center: [121.47, 31.13],
+                // 百度地图缩放
+                zoom: 11,
+                // 是否开启拖拽缩放，可以只设置 'scale' 或者 'move'
+                roam: true,
+                // 百度地图的自定义样式，见 http://developer.baidu.com/map/jsdevelop-11.htm
+                mapStyle: {}
+            },
+            series: [{
+                type: 'scatter',
+                // 使用百度地图坐标系
+                coordinateSystem: 'bmap',
+                // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+                data: [
+                    {
+                        name:"ha",//显示的内容
+                        value:[121.22,31.18], //代表的是经纬度
+                        tooltip:{
+                            formatter:"公司名称：上海市政府<br/>薪资：10-20k<br/>人数：999人"
+                        }
+                    },{
+                        name:'lo',
+                        value:[121.12,31.18],
+                    },{
+                        name:"我是谁",
+                        value:[116.412,40.0609]
+                    }
+                ]
+            }]
+        }
+        myChart.setOption(option)
+    </script>
+    <script type="text/javascript">
+        $(function(){
+            $(".btn").click(function(){
+                //ajax异步数据请求
+                $.ajax({
+                    url:"./zhilian_data.json",
+                    type:"get",
+                    dataType:"json",
+                    success:function(data){
+                        // console.log(data)
+                        var total=new Array()
+                        for(var i=0;i<data.length;i++){
+                            var once=new Object()
+                            once['name']=data[i].jobname
+                            once['value']=[data[i].lon,data[i].lat]
+                            showHtml="职位名称:"+data[i].jobname+"<br/>公司名称："+data[i].companyname+"<br/>薪资待遇："+data[i].salary+"<br/>工作经验："+data[i].workexp+"<br/>学历："+data[i].edulevel
+                            once['tooltip']={formatter:showHtml}
+                            total.push(once)
+                        }
+
+
+                        option.series[0].data=total
+                        myChart.setOption(option)
+
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+1.职位名jobname
+2.公司名companyname
+3.薪资水平salary
+4.工作地点workplace
+5.工作经验workexp
+6.学历edulevel
+7.公司类型companytype
+8.公司规模companysize
+9.lat
+10.lon
+10.公司详细地址address
+
+
+
+pip install pymysql
+conda install pymysql

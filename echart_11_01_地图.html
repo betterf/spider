@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <script type="text/javascript" src="./js/jquery.js"></script>
+    <!-- 引入 ECharts -->
+    <script src="./js/echarts.js"></script>
+    <!-- 引入百度地图扩展 -->
+    <script src="./js/bmap.js"></script>
+     <!--引入百度地图的jssdk，这里需要使用你在百度地图开发者平台申请的 ak-->
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=jPRAv0mZ52gDMHCUGrixx2DGnSv87u1Q
+"></script>
+</head>
+<body style="background-color: #00CCCC;">
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <input id="search" type="search" name="search"><button class="btn">查询</button>
+    <div id="main" style="width: 1000px;height:670px;margin: 0 auto;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        myChart = echarts.init(document.getElementById('main'));
+
+        var option = {
+            tooltip:{
+                trigger:"item",
+                
+            },
+            // 加载 bmap 组件
+            bmap: {
+                // 百度地图中心经纬度
+                center: [121.47, 31.13],
+                // 百度地图缩放
+                zoom: 11,
+                // 是否开启拖拽缩放，可以只设置 'scale' 或者 'move'
+                roam: true,
+                // 百度地图的自定义样式，见 http://developer.baidu.com/map/jsdevelop-11.htm
+                mapStyle: {}
+            },
+            series: [{
+
+                type: 'scatter',
+                // 使用百度地图坐标系
+                coordinateSystem: 'bmap',
+                // 数据格式跟在 geo 坐标系上一样，每一项都是 [经度，纬度，数值大小，其它维度...]
+                data: [
+                    {
+                        name:"ha",
+                        value:[121.22,31.18,10],
+                        tooltip:{
+                            formatter:"aaaaaa",
+                            extraCssText:'width:100px;height:60px;'
+
+                        }
+
+                    },{
+                        name:'lo',
+                        value:[121.12,31.18,20],
+                        
+                    }
+                ]
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+        $(".btn").click(function(){
+            var search=$('#search').val();
+            //console.log(search)
+            $.ajax({
+                url:'./data.php',
+                data:{'search':search},
+                type:'get',
+                dataType:'json',
+                beforeSend:function(){
+                    myChart.showLoading()
+                },
+                success:function(da){
+                    myChart.hideLoading()
+                    option.series[0].data=[]
+                    for(var i=0;i<da.length;i++){
+                        option.series[0].data[i]=new Object()
+                        option.series[0].data[i].name=da[i]['comJobName']
+                        option.series[0].data[i].value=[da[i]['comLon'],da[i]['comLat']]
+                        //显示的内容
+                        showHtml=da[i]['comName']+'('+da[i]['comSize']+")<br/>"+da[i]['comJobName']+"<br/>"+da[i]['comAddress']+"<br/>"+da[i]['comUrl']+'<br/>学历：'+da[i]['comEduLevel']+" 薪资："+da[i]['comSalary']+" 经验："+da[i]['comWorkExp']+"<br/>"+da[i]['comDesc']
+                        option.series[0].data[i].tooltip={
+                            formatter:showHtml,
+                            extraCssText:'width:400px;position: absolute;word-break:break-all;word-wrap:break-word;white-space:pre-wrap;'
+                               
+                            
+                        }
+                    }
+                    console.log(option.series[0].data)
+                    myChart.setOption(option);
+                },
+
+            })
+        })
+    </script>
+</body>
+</html>
